@@ -1,0 +1,2140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧠 Psycho Pictionary - Ultimate Edition</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --gradient-rainbow: linear-gradient(90deg, #ff6b6b, #ffa94d, #ffd43b, #51cf66, #22b8cf, #6366f1, #a78bfa, #ec4899);
+            --gradient-rainbow-v: linear-gradient(180deg, #ff6b6b, #ffa94d, #ffd43b, #51cf66, #22b8cf, #6366f1, #a78bfa, #ec4899);
+            --primary: #6366f1;
+            --secondary: #ec4899;
+            --success: #10b981;
+            --danger: #ef4444;
+            --text: #1e293b;
+            --text-light: #64748b;
+            --border: #e2e8f0;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--gradient-rainbow);
+            color: var(--text);
+            overflow: hidden;
+        }
+
+        .screen {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .screen.active {
+            display: flex;
+            opacity: 1;
+            z-index: 10;
+        }
+
+        /* LOADING SCREEN */
+        #loading-screen {
+            background: var(--gradient-rainbow);
+            justify-content: center;
+        }
+
+        .loading-container {
+            text-align: center;
+            color: white;
+            animation: slideUp 0.8s ease;
+        }
+
+        .loading-container .logo {
+            font-size: 5rem;
+            margin-bottom: 20px;
+            animation: bounce 1s ease-in-out infinite;
+        }
+
+        .loading-container h1 {
+            font-size: 2.5rem;
+            font-weight: 900;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.3);
+        }
+
+        .loader {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(255,255,255,0.3);
+            border-top: 5px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 30px auto;
+        }
+
+        /* HOME SCREEN */
+        #home-screen {
+            background: var(--gradient-rainbow);
+        }
+
+        .home-container {
+            max-width: 1000px;
+            width: 100%;
+            text-align: center;
+            color: white;
+            animation: slideUp 0.8s ease;
+        }
+
+        .home-container h1 {
+            font-size: 3.5rem;
+            font-weight: 900;
+            margin-bottom: 15px;
+            text-shadow: 3px 3px 10px rgba(0,0,0,0.3);
+        }
+
+        .home-container p {
+            font-size: 1.2rem;
+            margin-bottom: 40px;
+            font-weight: 600;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .feature-card {
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(10px);
+            border: 3px solid;
+            border-image: var(--gradient-rainbow) 1;
+            border-radius: 16px;
+            padding: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px) scale(1.05);
+            box-shadow: 0 15px 40px rgba(255,107,107,0.3);
+        }
+
+        .feature-card .icon {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            display: block;
+            animation: bounce 1s ease-in-out infinite;
+        }
+
+        .feature-card h3 {
+            font-size: 1.2rem;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        /* SETUP SCREEN */
+        #setup-screen {
+            background: var(--gradient-rainbow);
+        }
+
+        .setup-container {
+            background: white;
+            border-radius: 24px;
+            padding: 50px;
+            max-width: 550px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            animation: slideUp 0.6s ease;
+            border: 4px solid;
+            border-image: var(--gradient-rainbow) 1;
+        }
+
+        .setup-container h1 {
+            background: var(--gradient-rainbow);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 2.2rem;
+            font-weight: 900;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: var(--text);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
+        }
+
+        .radio-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .radio-group label {
+            display: flex;
+            align-items: center;
+            padding: 10px 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .radio-group label:hover {
+            background: #f0f2f5;
+            border-color: var(--primary);
+        }
+
+        .radio-group input[type="radio"] {
+            margin-right: 10px;
+            cursor: pointer;
+        }
+
+        .button-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 14px 28px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .btn-primary {
+            background: var(--gradient-rainbow);
+            color: white;
+            box-shadow: 0 8px 20px rgba(255,107,107,0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(255,107,107,0.5);
+            filter: brightness(1.1);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: var(--primary);
+            border: 3px solid var(--primary);
+        }
+
+        .btn-secondary:hover {
+            background: #f8f9fa;
+            transform: translateY(-2px);
+        }
+
+        /* GAME SCREEN */
+        #game-screen {
+            background: var(--gradient-rainbow);
+        }
+
+        .game-container {
+            background: white;
+            border-radius: 24px;
+            padding: 40px;
+            max-width: 700px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            animation: slideUp 0.6s ease;
+            border: 4px solid;
+            border-image: var(--gradient-rainbow) 1;
+        }
+
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid;
+            border-image: var(--gradient-rainbow) 1;
+        }
+
+        .game-header h2 {
+            background: var(--gradient-rainbow);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 1.8rem;
+        }
+
+        .game-info {
+            display: flex;
+            gap: 20px;
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+
+        .timer {
+            color: var(--danger);
+            animation: pulse 1s ease-in-out infinite;
+        }
+
+        .word-image {
+            font-size: 6rem;
+            text-align: center;
+            margin: 30px 0;
+            animation: bounce 0.8s ease-in-out infinite;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .input-group input {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            font-size: 1rem;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
+        }
+
+        .input-group button {
+            padding: 15px 30px;
+            background: var(--gradient-rainbow);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .input-group button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(255,107,107,0.3);
+        }
+
+        .feedback {
+            padding: 15px;
+            border-radius: 12px;
+            margin: 15px 0;
+            text-align: center;
+            font-weight: 700;
+            min-height: 30px;
+        }
+
+        .feedback.correct {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #28a745;
+            animation: slideDown 0.5s ease;
+        }
+
+        .feedback.wrong {
+            background: #f8d7da;
+            color: #721c24;
+            border: 2px solid #f5c6cb;
+            animation: shake 0.5s ease;
+        }
+
+        /* RESULTS SCREEN */
+        #results-screen {
+            background: var(--gradient-rainbow);
+        }
+
+        .results-container {
+            background: white;
+            border-radius: 24px;
+            padding: 50px;
+            max-width: 700px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            animation: slideUp 0.6s ease;
+            border: 4px solid;
+            border-image: var(--gradient-rainbow) 1;
+            text-align: center;
+        }
+
+        .results-container h1 {
+            background: var(--gradient-rainbow);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+            animation: slideDown 0.8s ease;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #f8f9fa, #ffffff);
+            padding: 25px;
+            border-radius: 16px;
+            border: 2px solid var(--border);
+        }
+
+        .stat-card h3 {
+            color: var(--text-light);
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .stat-value {
+            background: var(--gradient-rainbow);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 2.5rem;
+            font-weight: 900;
+        }
+
+        /* DASHBOARD SCREEN */
+        #dashboard-screen {
+            background: var(--gradient-rainbow);
+        }
+
+        .dashboard-container {
+            background: white;
+            border-radius: 24px;
+            padding: 40px;
+            max-width: 1000px;
+            width: 100%;
+            max-height: 95vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            animation: slideUp 0.6s ease;
+        }
+
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid;
+            border-image: var(--gradient-rainbow) 1;
+        }
+
+        .dashboard-header h1 {
+            background: var(--gradient-rainbow);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 2rem;
+        }
+
+        .players-section {
+            margin-bottom: 40px;
+        }
+
+        .players-section h2 {
+            background: var(--gradient-rainbow);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid;
+            border-image: var(--gradient-rainbow) 1;
+        }
+
+        .age-group {
+            margin-bottom: 25px;
+        }
+
+        .age-group-title {
+            background: var(--gradient-rainbow);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 12px;
+            font-weight: 800;
+            margin-bottom: 15px;
+        }
+
+        .players-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+        }
+
+        .player-card {
+            background: linear-gradient(135deg, #f8f9fa, #ffffff);
+            padding: 20px;
+            border-radius: 12px;
+            border-left: 5px solid;
+            border-image: var(--gradient-rainbow) 1;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+        }
+
+        .player-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(255,107,107,0.2);
+        }
+
+        .player-card h4 {
+            color: var(--text);
+            margin-bottom: 12px;
+            font-size: 1.1rem;
+        }
+
+        .player-card p {
+            color: var(--text-light);
+            font-size: 0.9rem;
+            margin: 6px 0;
+        }
+
+        /* PSYCHOLOGY SCREEN */
+        #psychology-screen {
+            background: var(--gradient-rainbow);
+        }
+
+        .psychology-container {
+            background: white;
+            border-radius: 24px;
+            padding: 40px;
+            max-width: 1000px;
+            width: 100%;
+            max-height: 95vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            animation: slideUp 0.6s ease;
+        }
+
+        .psychology-container h1 {
+            background: var(--gradient-rainbow);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 2rem;
+            margin-bottom: 30px;
+        }
+
+        .chart-section {
+            margin-bottom: 40px;
+        }
+
+        .chart-section h2 {
+            color: var(--text);
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid;
+            border-image: var(--gradient-rainbow) 1;
+        }
+
+        .bar-chart {
+            display: flex;
+            align-items: flex-end;
+            gap: 15px;
+            height: 250px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+        }
+
+        .bar {
+            flex: 1;
+            background: var(--gradient-rainbow);
+            border-radius: 8px 8px 0 0;
+            min-height: 30px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 0.85rem;
+            padding: 5px;
+            box-shadow: 0 4px 12px rgba(255,107,107,0.2);
+            transition: all 0.3s ease;
+        }
+
+        .bar:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(255,107,107,0.4);
+        }
+
+        .insights-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .insight-card {
+            background: linear-gradient(135deg, #f8f9fa, #ffffff);
+            padding: 25px;
+            border-radius: 12px;
+            border-left: 5px solid;
+            border-image: var(--gradient-rainbow) 1;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+
+        .insight-card h3 {
+            color: var(--text);
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+
+        .insight-card p {
+            color: var(--text-light);
+            line-height: 1.6;
+        }
+
+        /* PSYCHOLOGY ANALYSIS SCREEN */
+        #psychology-analysis-screen {
+            background: var(--gradient-rainbow);
+            overflow-y: auto;
+        }
+
+        .psychology-analysis-container {
+            background: white;
+            border-radius: 24px;
+            padding: 40px;
+            max-width: 1200px;
+            width: 100%;
+            max-height: 95vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            animation: slideUp 0.6s ease;
+            border: 4px solid;
+            border-image: var(--gradient-rainbow) 1;
+            margin: auto;
+        }
+
+        .psychology-analysis-container h1 {
+            background: var(--gradient-rainbow);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .analysis-section {
+            margin-bottom: 40px;
+        }
+
+        .analysis-section h2 {
+            color: var(--primary);
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .age-group-card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .age-group-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        }
+
+        .age-group-card h3 {
+            font-size: 1.1rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        /* STORY SCREEN */
+        #story-screen {
+            background: var(--gradient-rainbow);
+        }
+
+        .story-container {
+            background: white;
+            border-radius: 24px;
+            padding: 40px;
+            max-width: 700px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            animation: slideUp 0.6s ease;
+            border: 4px solid;
+            border-image: var(--gradient-rainbow) 1;
+        }
+
+        .story-container h1 {
+            background: var(--gradient-rainbow);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 2rem;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .story-image {
+            font-size: 4rem;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .story-textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            font-size: 1rem;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 200px;
+            margin: 20px 0;
+        }
+
+        .story-textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
+        }
+
+        /* STORY RESULTS SCREEN */
+        #story-results-screen {
+            background: var(--gradient-rainbow);
+        }
+
+        .story-results-container {
+            background: white;
+            border-radius: 24px;
+            padding: 40px;
+            max-width: 700px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            animation: slideUp 0.6s ease;
+            border: 4px solid;
+            border-image: var(--gradient-rainbow) 1;
+        }
+
+        .story-results-container h1 {
+            background: var(--gradient-rainbow);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 2rem;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        /* ANIMATIONS */
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        /* ==================== RESPONSIVE DESIGN ==================== */
+        /* TABLETS (768px to 1024px) */
+        @media (max-width: 1024px) {
+            .loading-container h1 {
+                font-size: 2rem;
+            }
+            
+            .loading-container .logo {
+                font-size: 4rem;
+            }
+            
+            .home-container h1 {
+                font-size: 2rem;
+            }
+            
+            .feature-card {
+                padding: 20px;
+            }
+            
+            .feature-card h3 {
+                font-size: 1.1rem;
+            }
+            
+            .feature-card p {
+                font-size: 0.9rem;
+            }
+            
+            .setup-container, .game-container, .results-container, .psychology-container, .psychology-analysis-container, .story-container, .story-results-container {
+                padding: 25px;
+                max-width: 90%;
+            }
+            
+            .button-group {
+                grid-template-columns: 1fr 1fr;
+                gap: 12px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .players-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .insights-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .age-group-card {
+                padding: 15px;
+            }
+        }
+
+        /* MOBILE (480px to 768px) */
+        @media (max-width: 768px) {
+            html, body {
+                font-size: 14px;
+            }
+            
+            .screen {
+                padding: 15px;
+            }
+            
+            .loading-container h1 {
+                font-size: 1.5rem;
+            }
+            
+            .loading-container .logo {
+                font-size: 3rem;
+            }
+            
+            .home-container {
+                max-width: 95%;
+            }
+            
+            .home-container h1 {
+                font-size: 1.5rem;
+                margin-bottom: 15px;
+            }
+            
+            .home-container p {
+                font-size: 0.9rem;
+                margin-bottom: 20px;
+            }
+            
+            .features-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+            
+            .feature-card {
+                padding: 15px;
+                border-radius: 12px;
+            }
+            
+            .feature-card h3 {
+                font-size: 1rem;
+                margin-bottom: 8px;
+            }
+            
+            .feature-card p {
+                font-size: 0.85rem;
+            }
+            
+            .setup-container, .game-container, .results-container, .psychology-container, .psychology-analysis-container, .story-container, .story-results-container {
+                padding: 20px;
+                max-width: 95%;
+                border-radius: 16px;
+            }
+            
+            .setup-container h1, .game-container h1, .results-container h1, .psychology-container h1, .psychology-analysis-container h1, .story-container h1, .story-results-container h1 {
+                font-size: 1.3rem;
+                margin-bottom: 15px;
+            }
+            
+            .button-group {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            
+            .btn {
+                padding: 12px 16px;
+                font-size: 0.95rem;
+                border-radius: 10px;
+            }
+            
+            .form-group {
+                margin-bottom: 12px;
+            }
+            
+            .form-group label {
+                font-size: 0.9rem;
+            }
+            
+            .form-group input[type="text"],
+            .form-group input[type="number"],
+            .form-group select {
+                padding: 10px;
+                font-size: 0.95rem;
+            }
+            
+            .game-container {
+                max-height: 95vh;
+                display: flex;
+                flex-direction: column;
+            }
+            
+            .word-image {
+                font-size: 3rem;
+                margin: 15px 0;
+            }
+            
+            .timer {
+                font-size: 2.5rem;
+            }
+            
+            #wordDefinition {
+                font-size: 0.9rem;
+                margin: 10px 0;
+            }
+            
+            #guessInput {
+                padding: 10px;
+                font-size: 0.95rem;
+                margin: 10px 0;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+            
+            .stat-card {
+                padding: 15px;
+            }
+            
+            .stat-value {
+                font-size: 2rem;
+            }
+            
+            .stat-label {
+                font-size: 0.85rem;
+            }
+            
+            .players-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .player-card {
+                padding: 12px;
+                margin: 8px 0;
+            }
+            
+            .player-card h4 {
+                font-size: 0.95rem;
+                margin-bottom: 8px;
+            }
+            
+            .player-card p {
+                font-size: 0.85rem;
+                margin: 3px 0;
+            }
+            
+            .bar-chart {
+                height: 200px;
+            }
+            
+            .insights-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+            
+            .insight-card {
+                padding: 12px;
+            }
+            
+            .insight-card h3 {
+                font-size: 0.95rem;
+                margin-bottom: 8px;
+            }
+            
+            .insight-card p {
+                font-size: 0.85rem;
+                line-height: 1.4;
+            }
+            
+            .story-textarea {
+                min-height: 150px;
+                padding: 10px;
+                font-size: 0.95rem;
+            }
+            
+            .psychology-analysis-container {
+                max-width: 95%;
+                max-height: 95vh;
+            }
+            
+            .analysis-section {
+                margin-bottom: 20px;
+            }
+            
+            .analysis-section h2 {
+                font-size: 1.1rem;
+                margin-bottom: 10px;
+            }
+            
+            .age-group-card {
+                padding: 12px;
+            }
+            
+            .age-group-card h3 {
+                font-size: 0.95rem;
+            }
+            
+            .age-group-card div {
+                font-size: 1.3rem;
+            }
+            
+            .leaderboard-entry {
+                padding: 10px;
+            }
+            
+            .feedback {
+                padding: 10px;
+                font-size: 0.9rem;
+                border-radius: 8px;
+            }
+        }
+
+        /* SMALL MOBILE (under 480px) */
+        @media (max-width: 480px) {
+            html, body {
+                font-size: 12px;
+            }
+            
+            .screen {
+                padding: 12px;
+            }
+            
+            .loading-container h1 {
+                font-size: 1.2rem;
+            }
+            
+            .loading-container .logo {
+                font-size: 2.5rem;
+            }
+            
+            .home-container h1 {
+                font-size: 1.2rem;
+                margin-bottom: 12px;
+            }
+            
+            .features-grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            
+            .feature-card {
+                padding: 12px;
+            }
+            
+            .feature-card h3 {
+                font-size: 0.9rem;
+            }
+            
+            .feature-card p {
+                font-size: 0.8rem;
+            }
+            
+            .setup-container, .game-container, .results-container, .psychology-container, .psychology-analysis-container, .story-container, .story-results-container {
+                padding: 15px;
+                border-radius: 12px;
+            }
+            
+            .setup-container h1, .game-container h1, .results-container h1, .psychology-container h1, .psychology-analysis-container h1, .story-container h1, .story-results-container h1 {
+                font-size: 1.1rem;
+                margin-bottom: 12px;
+            }
+            
+            .btn {
+                padding: 10px 12px;
+                font-size: 0.9rem;
+                border-radius: 8px;
+            }
+            
+            .button-group {
+                gap: 8px;
+            }
+            
+            .word-image {
+                font-size: 2.5rem;
+                margin: 12px 0;
+            }
+            
+            .timer {
+                font-size: 2rem;
+            }
+            
+            .stat-card {
+                padding: 12px;
+            }
+            
+            .stat-value {
+                font-size: 1.5rem;
+            }
+            
+            .bar-chart {
+                height: 150px;
+            }
+            
+            .story-textarea {
+                min-height: 120px;
+            }
+            
+            .age-group-card div {
+                font-size: 1.1rem;
+            }
+            
+            .player-card {
+                padding: 10px;
+            }
+            
+            .insight-card {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- LOADING SCREEN -->
+    <div id="loading-screen" class="screen active">
+        <div class="loading-container">
+            <div class="logo">🧠</div>
+            <h1>Psycho Pictionary</h1>
+            <p>Learn Words Through Visual Recognition</p>
+            <div class="loader"></div>
+        </div>
+    </div>
+
+    <!-- HOME SCREEN -->
+    <div id="home-screen" class="screen">
+        <div class="home-container">
+            <h1>🧠 Psycho Pictionary</h1>
+            <p>Boost your vocabulary & cognitive skills with creative learning!</p>
+            
+            <div class="features-grid">
+                <div class="feature-card" onclick="showSetup()">
+                    <span class="icon">🎮</span>
+                    <h3>Play Game</h3>
+                    <p>Guess words from images</p>
+                </div>
+                <div class="feature-card" onclick="showDashboard()">
+                    <span class="icon">📊</span>
+                    <h3>Dashboard</h3>
+                    <p>Track your progress</p>
+                </div>
+                <div class="feature-card" onclick="showPsychology()">
+                    <span class="icon">🧠</span>
+                    <h3>Psychology</h3>
+                    <p>Learning insights</p>
+                </div>
+                <div class="feature-card" onclick="showStory()">
+                    <span class="icon">📖</span>
+                    <h3>Story Mode</h3>
+                    <p>Creative writing</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SETUP SCREEN -->
+    <div id="setup-screen" class="screen">
+        <div class="setup-container">
+            <h1>🎮 Game Setup</h1>
+            
+            <div class="form-group">
+                <label>👤 Player Name</label>
+                <input type="text" id="playerName" class="form-control" placeholder="Enter your name" required>
+            </div>
+
+            <div class="form-group">
+                <label>🎂 Age Category</label>
+                <div class="radio-group">
+                    <label><input type="radio" name="ageGroup" value="1-10" required> 👶 Ages 1-10 (Kids)</label>
+                    <label><input type="radio" name="ageGroup" value="10-20"> 🧑 Ages 10-20 (Teens)</label>
+                    <label><input type="radio" name="ageGroup" value="20+" checked> 👨 Ages 20+ (Adults)</label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>📚 Difficulty Level</label>
+                <div class="radio-group">
+                    <label><input type="radio" name="difficulty" value="easy" checked> 🟢 Easy</label>
+                    <label><input type="radio" name="difficulty" value="medium"> 🟡 Medium</label>
+                    <label><input type="radio" name="difficulty" value="hard"> 🔴 Hard (Advanced)</label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>🎯 Number of Rounds: <span id="roundsDisplay">10</span></label>
+                <input type="range" id="rounds" class="form-control" min="5" max="20" value="10" oninput="document.getElementById('roundsDisplay').textContent = this.value">
+            </div>
+
+            <div class="button-group">
+                <button class="btn btn-secondary" onclick="showHome()">← Back</button>
+                <button class="btn btn-primary" onclick="startGame()">Start Game ▶️</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- GAME SCREEN -->
+    <div id="game-screen" class="screen">
+        <div class="game-container">
+            <div class="game-header">
+                <h2>🎮 Round <span id="currentRound">1</span>/10</h2>
+                <div class="game-info">
+                    <span>Score: <strong id="score">0</strong></span>
+                    <span class="timer">⏱️ <strong id="timer">60</strong>s</span>
+                </div>
+            </div>
+
+            <div style="text-align: center;">
+                <div class="word-image" id="wordImage">🍎</div>
+                <p id="wordDefinition" style="color: var(--text-light); font-size: 0.95rem; margin: 15px 0;">Guess this word based on the image!</p>
+            </div>
+
+            <div class="input-group">
+                <input type="text" id="guessInput" class="form-control" placeholder="Type your guess..." autocomplete="off">
+                <button class="btn btn-primary" onclick="submitGuess()">Submit</button>
+            </div>
+
+            <div id="feedback"></div>
+
+            <button class="btn btn-secondary" onclick="showHome()" style="width: 100%; margin-top: 15px;">← Quit Game</button>
+        </div>
+    </div>
+
+    <!-- RESULTS SCREEN -->
+    <div id="results-screen" class="screen">
+        <div class="results-container">
+            <h1>🎉 Game Complete!</h1>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Final Score</h3>
+                    <div class="stat-value" id="finalScore">0</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Accuracy</h3>
+                    <div class="stat-value" id="finalAccuracy">0%</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Correct</h3>
+                    <div class="stat-value" id="correctCount">0</div>
+                </div>
+                <div class="stat-card">
+                    <h3>Total</h3>
+                    <div class="stat-value" id="totalCount">10</div>
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button class="btn btn-secondary" onclick="showHome()">← Home</button>
+                <button class="btn btn-primary" onclick="showSetup()">Play Again ▶️</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- DASHBOARD SCREEN -->
+    <div id="dashboard-screen" class="screen">
+        <div class="dashboard-container">
+            <div class="dashboard-header">
+                <h1>📊 Dashboard</h1>
+                <button class="btn btn-secondary" onclick="showHome()">← Home</button>
+            </div>
+
+            <div class="players-section">
+                <h2>👥 Players</h2>
+                <div id="playersContainer"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PSYCHOLOGY SCREEN -->
+    <div id="psychology-screen" class="screen">
+        <div class="psychology-container">
+            <h1>🧠 Learning Insights</h1>
+
+            <div class="chart-section">
+                <h2>📈 Learning Progress</h2>
+                <div class="bar-chart" id="learningChart"></div>
+            </div>
+
+            <div class="chart-section">
+                <h2>🎯 Performance by Difficulty</h2>
+                <div class="bar-chart" id="difficultyChart"></div>
+            </div>
+
+            <div class="chart-section">
+                <h2>💡 Psychology Insights</h2>
+                <div class="insights-grid" id="insightsContainer"></div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 30px;">
+                <button class="btn btn-secondary" onclick="showHome()">← Home</button>
+                <button class="btn btn-primary" onclick="showPsychologyAnalysis()">📊 User Analysis →</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PSYCHOLOGY ANALYSIS SCREEN (User Performance Graphs) -->
+    <div id="psychology-analysis-screen" class="screen">
+        <div class="psychology-analysis-container">
+            <h1>📊 Psychological Analysis Dashboard</h1>
+            <p style="text-align: center; color: var(--text-light); margin-bottom: 20px;">Performance metrics and player behavioral patterns</p>
+
+            <!-- User Count Stats -->
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 30px;">
+                <div class="stat-card" style="background: linear-gradient(135deg, #6366f1, #a78bfa); color: white;">
+                    <div style="font-size: 0.9rem; opacity: 0.9;">Total Players</div>
+                    <div style="font-size: 2.5rem; font-weight: bold;" id="totalPlayersCount">0</div>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #ec4899, #f472b6); color: white;">
+                    <div style="font-size: 0.9rem; opacity: 0.9;">Average Score</div>
+                    <div style="font-size: 2.5rem; font-weight: bold;" id="avgScoreCount">0</div>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #10b981, #34d399); color: white;">
+                    <div style="font-size: 0.9rem; opacity: 0.9;">Avg Accuracy</div>
+                    <div style="font-size: 2.5rem; font-weight: bold;" id="avgAccuracyCount">0%</div>
+                </div>
+            </div>
+
+            <!-- Graph Section 1: Score Distribution -->
+            <div class="analysis-section">
+                <h2>📈 Score Distribution (All Users)</h2>
+                <p style="color: var(--text-light); font-size: 0.9rem; margin-bottom: 15px;">Visualization of player scores with performance bands</p>
+                <div style="background: white; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+                    <div style="display: flex; align-items: flex-end; gap: 8px; height: 300px; padding: 10px;">
+                        <div id="scoreDistributionChart" style="display: flex; gap: 6px; align-items: flex-end; width: 100%; height: 100%;"></div>
+                    </div>
+                    <div style="display: flex; justify-content: space-around; margin-top: 15px; font-size: 0.85rem; color: var(--text-light);">
+                        <span>📍 0-25</span>
+                        <span>📍 25-50</span>
+                        <span>📍 50-75</span>
+                        <span>📍 75-100</span>
+                        <span>📍 100+</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Graph Section 2: Age Group Analysis -->
+            <div class="analysis-section">
+                <h2>👥 Performance by Age Group</h2>
+                <p style="color: var(--text-light); font-size: 0.9rem; margin-bottom: 15px;">Average accuracy and score progression across age categories</p>
+                <div style="background: white; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;">
+                        <div id="ageGroup1-10" class="age-group-card" style="padding: 20px; border-radius: 12px; background: linear-gradient(135deg, #ffd43b, #ffa94d); color: white;">
+                            <h3>🧒 Ages 1-10</h3>
+                            <div style="font-size: 2rem; font-weight: bold; margin: 10px 0;" id="age1-10-score">0</div>
+                            <p style="font-size: 0.9rem; opacity: 0.9;" id="age1-10-players">0 players</p>
+                            <p style="font-size: 0.85rem; opacity: 0.8; margin-top: 10px;">Accuracy: <span id="age1-10-acc">0%</span></p>
+                        </div>
+                        <div id="ageGroup10-20" class="age-group-card" style="padding: 20px; border-radius: 12px; background: linear-gradient(135deg, #51cf66, #40c057); color: white;">
+                            <h3>👦 Ages 10-20</h3>
+                            <div style="font-size: 2rem; font-weight: bold; margin: 10px 0;" id="age10-20-score">0</div>
+                            <p style="font-size: 0.9rem; opacity: 0.9;" id="age10-20-players">0 players</p>
+                            <p style="font-size: 0.85rem; opacity: 0.8; margin-top: 10px;">Accuracy: <span id="age10-20-acc">0%</span></p>
+                        </div>
+                        <div id="ageGroup20" class="age-group-card" style="padding: 20px; border-radius: 12px; background: linear-gradient(135deg, #6366f1, #818cf8); color: white;">
+                            <h3>👨 Ages 20+</h3>
+                            <div style="font-size: 2rem; font-weight: bold; margin: 10px 0;" id="age20-score">0</div>
+                            <p style="font-size: 0.9rem; opacity: 0.9;" id="age20-players">0 players</p>
+                            <p style="font-size: 0.85rem; opacity: 0.8; margin-top: 10px;">Accuracy: <span id="age20-acc">0%</span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Graph Section 3: Player Leaderboard with Scores -->
+            <div class="analysis-section">
+                <h2>🏆 Top Players Leaderboard</h2>
+                <p style="color: var(--text-light); font-size: 0.9rem; margin-bottom: 15px;">Ranked by best score with accuracy metrics</p>
+                <div style="background: white; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+                    <div id="leaderboardChart" style="display: flex; flex-direction: column; gap: 10px;">
+                        <!-- Leaderboard bars will be inserted here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Behavioral Insights -->
+            <div class="analysis-section">
+                <h2>🧬 Behavioral Patterns & Insights</h2>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;">
+                    <div style="background: linear-gradient(135deg, #ff6b6b, #fa5252); color: white; padding: 20px; border-radius: 12px;">
+                        <h3>⚡ High Performers</h3>
+                        <p id="highPerformers" style="font-size: 0.9rem; line-height: 1.6;">Loading...</p>
+                    </div>
+                    <div style="background: linear-gradient(135deg, #22b8cf, #1098ad); color: white; padding: 20px; border-radius: 12px;">
+                        <h3>📊 Engagement Level</h3>
+                        <p id="engagementLevel" style="font-size: 0.9rem; line-height: 1.6;">Loading...</p>
+                    </div>
+                    <div style="background: linear-gradient(135deg, #a78bfa, #c084fc); color: white; padding: 20px; border-radius: 12px;">
+                        <h3>🎯 Age Group Trends</h3>
+                        <p id="ageGroupTrends" style="font-size: 0.9rem; line-height: 1.6;">Loading...</p>
+                    </div>
+                    <div style="background: linear-gradient(135deg, #f59e0b, #d97706); color: white; padding: 20px; border-radius: 12px;">
+                        <h3>🔍 Recommendations</h3>
+                        <p id="recommendations" style="font-size: 0.9rem; line-height: 1.6;">Loading...</p>
+                    </div>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 30px;">
+                <button class="btn btn-secondary" onclick="loadPsychology(); showScreen('psychology-screen')">← Back</button>
+                <button class="btn btn-primary" onclick="showHome()">🏠 Home</button>
+            </div>
+        </div>
+    </div>
+
+            <button class="btn btn-secondary" onclick="showHome()" style="width: 100%; margin-top: 30px;">← Home</button>
+        </div>
+    </div>
+
+    <!-- STORY SCREEN -->
+    <div id="story-screen" class="screen">
+        <div class="story-container">
+            <h1>📖 Story Prediction</h1>
+            <div class="story-image" id="storyImage">🏰</div>
+            <p id="storyTheme" style="text-align: center; font-weight: 600; margin: 15px 0;">Write a creative story!</p>
+            <textarea id="storyInput" class="story-textarea" placeholder="Write your creative story here (100-300 words)..."></textarea>
+            <div style="text-align: center; color: var(--text-light); font-size: 0.9rem; margin: 10px 0;">
+                Word count: <span id="storyWordCount">0</span>/300
+            </div>
+            <div class="button-group">
+                <button class="btn btn-secondary" onclick="showHome()">← Home</button>
+                <button class="btn btn-primary" onclick="submitStory()">Submit Story ▶️</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- STORY RESULTS SCREEN -->
+    <div id="story-results-screen" class="screen">
+        <div class="story-results-container">
+            <h1>📊 Story Prediction Results</h1>
+            <div style="text-align: center; margin: 20px 0;">
+                <div id="predictionEmoji" style="font-size: 4rem; margin: 20px 0;">📖</div>
+                <h2 id="predictionTitle" style="color: var(--primary); margin: 10px 0;">Story Analysis</h2>
+            </div>
+            
+            <div id="keywordResults" style="margin: 20px 0;">
+                <!-- Keywords will be populated here -->
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 20px 0;">
+                <div class="stat-card" style="background: linear-gradient(135deg, #10b981, #34d399); color: white;">
+                    <div style="font-size: 0.9rem; opacity: 0.9;">Keywords Found</div>
+                    <div id="keywordScore" style="font-size: 2.5rem; font-weight: bold;">0</div>
+                </div>
+                <div class="stat-card" style="background: linear-gradient(135deg, #6366f1, #a78bfa); color: white;">
+                    <div style="font-size: 0.9rem; opacity: 0.9;">Story Quality</div>
+                    <div id="qualityScore" style="font-size: 2.5rem; font-weight: bold;">0%</div>
+                </div>
+            </div>
+
+            <div id="predictionFeedback" style="padding: 20px; background: #f1f5f9; border-radius: 12px; margin: 15px 0; border-left: 5px solid var(--primary);">
+                <!-- Feedback will be populated here -->
+            </div>
+
+            <div class="button-group" style="margin-top: 30px;">
+                <button class="btn btn-secondary" onclick="showHome()">← Home</button>
+                <button class="btn btn-primary" onclick="initStoryScreen()">📝 Write Another</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==================== DATA ====================
+        const DUMMY_WORDS = {
+            easy: [
+                { word: 'apple', def: 'A red or green fruit', emoji: '🍎' },
+                { word: 'cat', def: 'A small furry pet', emoji: '🐱' },
+                { word: 'sun', def: 'The bright star in the sky', emoji: '☀️' },
+                { word: 'book', def: 'Something you read', emoji: '📚' },
+                { word: 'house', def: 'A building where people live', emoji: '🏠' },
+                { word: 'tree', def: 'A large plant with leaves', emoji: '🌳' },
+                { word: 'water', def: 'Clear liquid you drink', emoji: '💧' },
+                { word: 'flower', def: 'A colorful plant that blooms', emoji: '🌸' },
+                { word: 'bird', def: 'An animal with wings', emoji: '🐦' },
+                { word: 'fish', def: 'An aquatic animal', emoji: '🐠' }
+            ],
+            medium: [
+                { word: 'physics', def: 'Science of matter and energy', emoji: '⚛️' },
+                { word: 'chemistry', def: 'Science of atoms', emoji: '🧪' },
+                { word: 'biology', def: 'Science of living organisms', emoji: '🧬' },
+                { word: 'algorithm', def: 'Step-by-step procedure', emoji: '📋' },
+                { word: 'telescope', def: 'Tool to view distant objects', emoji: '🔭' },
+                { word: 'microscope', def: 'Tool to view tiny objects', emoji: '🔬' },
+                { word: 'equation', def: 'Mathematical statement', emoji: '⚖️' },
+                { word: 'geometry', def: 'Study of shapes', emoji: '△' },
+                { word: 'molecule', def: 'Group of atoms bonded', emoji: '⚗️' },
+                { word: 'technology', def: 'Science applied to practice', emoji: '💻' }
+            ],
+            hard: [
+                { word: 'integration', def: '∫f(x)dx - Calculus operation', emoji: '∫' },
+                { word: 'derivative', def: 'f\'(x) = Rate of change', emoji: '∂' },
+                { word: 'recursion', def: 'Function calling itself', emoji: '♻️' },
+                { word: 'fibonacci', def: '0,1,1,2,3,5... Sequence', emoji: '🌀' },
+                { word: 'matrix', def: '[[a,b],[c,d]] Linear algebra', emoji: '◻️' },
+                { word: 'polynomial', def: 'ax³+bx²+cx+d Expression', emoji: '📈' },
+                { word: 'logarithm', def: 'log₂(8)=3 Inverse exponential', emoji: '🔢' },
+                { word: 'probability', def: 'P(A)=favorable/total', emoji: '🎲' },
+                { word: 'binary', def: '1010₂ = 10₁₀ Base-2', emoji: '⓿' },
+                { word: 'tensor', def: 'Multi-dimensional array', emoji: '⬚' }
+            ]
+        };
+
+        const INSIGHTS = [
+            { title: '🎯 Visual Memory', content: 'Images increase retention by 65% compared to text alone.' },
+            { title: '⏱️ Spaced Repetition', content: 'Review at increasing intervals for better long-term memory.' },
+            { title: '🧠 Active Recall', content: 'Testing yourself is more effective than passive reading.' },
+            { title: '👶 Child Learning', content: 'Children learn best with visual aids and short sessions.' },
+            { title: '🌍 Bilingual Brain', content: 'Learning languages enhances cognitive flexibility.' },
+            { title: '💪 Flow State', content: 'Challenge matching skill level keeps you engaged.' }
+        ];
+
+        const STORIES = [
+            { 
+                emoji: '🏰', 
+                theme: 'Write a medieval castle adventure',
+                keywords: ['castle', 'knight', 'king', 'queen', 'sword', 'dragon', 'medieval', 'tower', 'ancient', 'battle']
+            },
+            { 
+                emoji: '🚀', 
+                theme: 'Describe a space exploration mission',
+                keywords: ['space', 'rocket', 'astronaut', 'planet', 'galaxy', 'alien', 'star', 'orbit', 'mission', 'universe']
+            },
+            { 
+                emoji: '🌊', 
+                theme: 'Tell an ocean discovery story',
+                keywords: ['ocean', 'sea', 'fish', 'whale', 'treasure', 'water', 'island', 'boat', 'coral', 'deep']
+            },
+            { 
+                emoji: '🌲', 
+                theme: 'Create a forest exploration tale',
+                keywords: ['forest', 'tree', 'animal', 'nature', 'wild', 'adventure', 'camp', 'trail', 'path', 'woods']
+            },
+            { 
+                emoji: '🦖', 
+                theme: 'Imagine a dinosaur era adventure',
+                keywords: ['dinosaur', 'fossil', 'extinct', 'prehistoric', 'creature', 'ancient', 'roar', 'cave', 'age', 'fossil']
+            }
+        ];
+
+        // ==================== STATE ====================
+        let gameState = {
+            playerName: '',
+            ageGroup: '20+',
+            difficulty: 'easy',
+            totalRounds: 10,
+            currentRound: 0,
+            score: 0,
+            correct: 0,
+            words: [],
+            usedWords: [],
+            currentWord: null,
+            timerInterval: null,
+            timeLeft: 60,
+            allPlayers: [],
+            currentStory: null,
+            storyText: ''
+        };
+
+        // ==================== UTILITIES ====================
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+        }
+
+        function showHome() { showScreen('home-screen'); }
+        function showSetup() { showScreen('setup-screen'); }
+        function showGame() { showScreen('game-screen'); }
+        function showResults() { showScreen('results-screen'); }
+        function showDashboard() { 
+            loadDashboard();
+            showScreen('dashboard-screen'); 
+        }
+        function showPsychology() { 
+            loadPsychology();
+            showScreen('psychology-screen'); 
+        }
+        function showStory() { 
+            initStory();
+            showScreen('story-screen'); 
+        }
+
+        // ==================== GAME SETUP ====================
+        window.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => showHome(), 1500);
+            loadPlayersFromStorage();
+            loadDashboard();
+        });
+
+        function startGame() {
+            const name = document.getElementById('playerName').value.trim();
+            const ageGroup = document.querySelector('input[name="ageGroup"]:checked').value;
+            const difficulty = document.querySelector('input[name="difficulty"]:checked').value;
+            const rounds = parseInt(document.getElementById('rounds').value);
+
+            if (!name) {
+                alert('Please enter your name!');
+                return;
+            }
+
+            gameState.playerName = name;
+            gameState.ageGroup = ageGroup;
+            gameState.difficulty = difficulty;
+            gameState.totalRounds = rounds;
+            gameState.currentRound = 0;
+            gameState.score = 0;
+            gameState.correct = 0;
+            gameState.usedWords = [];
+            gameState.words = [...DUMMY_WORDS[difficulty]];
+
+            startNextRound();
+        }
+
+        function startNextRound() {
+            gameState.currentRound++;
+            
+            if (gameState.currentRound > gameState.totalRounds) {
+                endGame();
+                return;
+            }
+
+            const available = gameState.words.filter(w => !gameState.usedWords.includes(w.word));
+            if (available.length === 0) {
+                gameState.words = [...DUMMY_WORDS[gameState.difficulty]];
+                gameState.usedWords = [];
+            }
+
+            gameState.currentWord = available[Math.floor(Math.random() * available.length)];
+            gameState.usedWords.push(gameState.currentWord.word);
+            gameState.timeLeft = gameState.difficulty === 'hard' ? 90 : 60;
+
+            document.getElementById('currentRound').textContent = gameState.currentRound;
+            document.getElementById('wordImage').textContent = gameState.currentWord.emoji;
+            document.getElementById('wordDefinition').textContent = gameState.currentWord.def;
+            document.getElementById('guessInput').value = '';
+            document.getElementById('feedback').innerHTML = '';
+
+            clearInterval(gameState.timerInterval);
+            updateTimer();
+            gameState.timerInterval = setInterval(updateTimer, 1000);
+
+            showGame();
+        }
+
+        function updateTimer() {
+            document.getElementById('timer').textContent = gameState.timeLeft;
+            if (gameState.timeLeft <= 0) {
+                clearInterval(gameState.timerInterval);
+                skipWord();
+            }
+            gameState.timeLeft--;
+        }
+
+        function submitGuess() {
+            clearInterval(gameState.timerInterval);
+            const guess = document.getElementById('guessInput').value.trim().toLowerCase();
+            const correct = gameState.currentWord.word.toLowerCase();
+
+            if (!guess) return;
+
+            const feedback = document.getElementById('feedback');
+            if (guess === correct) {
+                gameState.score += Math.max(10, gameState.timeLeft);
+                gameState.correct++;
+                feedback.className = 'feedback correct';
+                feedback.textContent = `✅ Correct! "${gameState.currentWord.word}" +${Math.max(10, gameState.timeLeft)} points`;
+            } else {
+                feedback.className = 'feedback wrong';
+                feedback.textContent = `❌ Wrong! The word was "${gameState.currentWord.word}"`;
+            }
+
+            document.getElementById('score').textContent = gameState.score;
+            setTimeout(() => startNextRound(), 2000);
+        }
+
+        function skipWord() {
+            document.getElementById('feedback').className = 'feedback wrong';
+            document.getElementById('feedback').textContent = `⏰ Time\'s up! The word was "${gameState.currentWord.word}"`;
+            setTimeout(() => startNextRound(), 2000);
+        }
+
+        function endGame() {
+            const accuracy = Math.round((gameState.correct / gameState.totalRounds) * 100);
+            document.getElementById('finalScore').textContent = gameState.score;
+            document.getElementById('finalAccuracy').textContent = accuracy + '%';
+            document.getElementById('correctCount').textContent = gameState.correct;
+            document.getElementById('totalCount').textContent = gameState.totalRounds;
+            // Save player stats after game finishes and update dashboard
+            savePlayerToStorage();
+            loadDashboard();
+            showResults();
+        }
+
+        // ==================== DASHBOARD ====================
+        function loadDashboard() {
+            const playersHtml = {
+                '1-10': [], '10-20': [], '20+': []
+            };
+
+            gameState.allPlayers.forEach(p => {
+                const html = `
+                    <div class="player-card">
+                        <h4>👤 ${p.name}</h4>
+                        <p><strong>Age Group:</strong> ${p.ageGroup}</p>
+                        <p><strong>Games Played:</strong> ${p.gamesPlayed}</p>
+                        <p><strong>Best Score:</strong> ${p.bestScore}</p>
+                        <p><strong>Avg Accuracy:</strong> ${p.avgAccuracy}%</p>
+                    </div>
+                `;
+                playersHtml[p.ageGroup].push(html);
+            });
+
+            let html = '';
+            Object.entries(playersHtml).forEach(([age, cards]) => {
+                if (cards.length > 0) {
+                    const emoji = age === '1-10' ? '👶' : age === '10-20' ? '🧑' : '👨';
+                    html += `
+                        <div class="age-group">
+                            <div class="age-group-title">${emoji} Ages ${age}</div>
+                            <div class="players-grid">${cards.join('')}</div>
+                        </div>
+                    `;
+                }
+            });
+
+            document.getElementById('playersContainer').innerHTML = html || '<p style="text-align: center; color: var(--text-light);">No players yet. Start a game to appear here!</p>';
+        }
+
+        // ==================== PSYCHOLOGY ====================
+        function loadPsychology() {
+            // Learning chart
+            const learningData = [
+                { day: 'Day 1', val: 30 },
+                { day: 'Day 2', val: 45 },
+                { day: 'Day 3', val: 60 },
+                { day: 'Day 4', val: 75 },
+                { day: 'Day 5', val: 85 }
+            ];
+
+            document.getElementById('learningChart').innerHTML = learningData.map(d => 
+                `<div class="bar" style="height: ${d.val}%;" title="${d.day}"><small>${d.val}%</small></div>`
+            ).join('');
+
+            // Difficulty chart
+            const diffData = [
+                { name: 'Easy', val: 95 },
+                { name: 'Medium', val: 78 },
+                { name: 'Hard', val: 62 }
+            ];
+
+            document.getElementById('difficultyChart').innerHTML = diffData.map(d => 
+                `<div class="bar" style="height: ${d.val}%;" title="${d.name}"><small>${d.name}</small></div>`
+            ).join('');
+
+            // Insights
+            document.getElementById('insightsContainer').innerHTML = INSIGHTS.map(i =>
+                `<div class="insight-card"><h3>${i.title}</h3><p>${i.content}</p></div>`
+            ).join('');
+        }
+
+        function showPsychologyAnalysis() {
+            // Generate comprehensive psychological analysis dashboard
+            const players = gameState.allPlayers;
+            
+            if (players.length === 0) {
+                alert('📊 No player data yet! Play some games first to generate analysis.');
+                return;
+            }
+
+            // ===== Overall Statistics =====
+            const totalPlayers = players.length;
+            const avgScore = Math.round(players.reduce((sum, p) => sum + p.bestScore, 0) / totalPlayers);
+            const avgAccuracy = Math.round(players.reduce((sum, p) => sum + p.avgAccuracy, 0) / totalPlayers);
+            
+            document.getElementById('totalPlayersCount').textContent = totalPlayers;
+            document.getElementById('avgScoreCount').textContent = avgScore;
+            document.getElementById('avgAccuracyCount').textContent = avgAccuracy + '%';
+
+            // ===== Score Distribution Chart =====
+            const scoreRanges = [
+                { range: '0-25', count: 0, color: '#ef4444' },
+                { range: '25-50', count: 0, color: '#f59e0b' },
+                { range: '50-75', count: 0, color: '#fbbf24' },
+                { range: '75-100', count: 0, color: '#10b981' },
+                { range: '100+', count: 0, color: '#6366f1' }
+            ];
+
+            players.forEach(p => {
+                if (p.bestScore < 25) scoreRanges[0].count++;
+                else if (p.bestScore < 50) scoreRanges[1].count++;
+                else if (p.bestScore < 75) scoreRanges[2].count++;
+                else if (p.bestScore < 100) scoreRanges[3].count++;
+                else scoreRanges[4].count++;
+            });
+
+            const maxScoreCount = Math.max(...scoreRanges.map(r => r.count), 1);
+            document.getElementById('scoreDistributionChart').innerHTML = scoreRanges.map(range => {
+                const height = (range.count / maxScoreCount) * 100 || 5;
+                return `
+                    <div style="display: flex; flex-direction: column; align-items: center; flex: 1; gap: 5px;">
+                        <div style="width: 100%; background: ${range.color}; height: ${height * 2.5}px; border-radius: 8px; transition: all 0.3s ease;" title="${range.count} players" onmouseover="this.style.filter='brightness(0.8)'" onmouseout="this.style.filter='brightness(1)'"></div>
+                        <span style="font-size: 0.8rem; font-weight: bold; color: var(--text);">${range.count}</span>
+                    </div>
+                `;
+            }).join('');
+
+            // ===== Age Group Analysis =====
+            const ageGroups = {
+                '1-10': { players: [], score: 0, accuracy: 0 },
+                '10-20': { players: [], score: 0, accuracy: 0 },
+                '20+': { players: [], score: 0, accuracy: 0 }
+            };
+
+            players.forEach(p => {
+                if (ageGroups[p.ageGroup]) {
+                    ageGroups[p.ageGroup].players.push(p);
+                }
+            });
+
+            Object.keys(ageGroups).forEach(group => {
+                const groupPlayers = ageGroups[group].players;
+                if (groupPlayers.length > 0) {
+                    ageGroups[group].score = Math.round(groupPlayers.reduce((sum, p) => sum + p.bestScore, 0) / groupPlayers.length);
+                    ageGroups[group].accuracy = Math.round(groupPlayers.reduce((sum, p) => sum + p.avgAccuracy, 0) / groupPlayers.length);
+                }
+            });
+
+            // Update age group displays
+            document.getElementById('age1-10-score').textContent = ageGroups['1-10'].score;
+            document.getElementById('age1-10-players').textContent = ageGroups['1-10'].players.length + ' players';
+            document.getElementById('age1-10-acc').textContent = ageGroups['1-10'].accuracy + '%';
+
+            document.getElementById('age10-20-score').textContent = ageGroups['10-20'].score;
+            document.getElementById('age10-20-players').textContent = ageGroups['10-20'].players.length + ' players';
+            document.getElementById('age10-20-acc').textContent = ageGroups['10-20'].accuracy + '%';
+
+            document.getElementById('age20-score').textContent = ageGroups['20+'].score;
+            document.getElementById('age20-players').textContent = ageGroups['20+'].players.length + ' players';
+            document.getElementById('age20-acc').textContent = ageGroups['20+'].accuracy + '%';
+
+            // ===== Leaderboard Chart =====
+            const topPlayers = [...players].sort((a, b) => b.bestScore - a.bestScore).slice(0, 8);
+            const maxScore = Math.max(...topPlayers.map(p => p.bestScore), 100);
+
+            document.getElementById('leaderboardChart').innerHTML = topPlayers.map((p, idx) => {
+                const width = (p.bestScore / maxScore) * 100;
+                const medal = idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : `#${idx + 1}`;
+                return `
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <div style="width: 40px; text-align: center; font-size: 1.2rem; font-weight: bold;">${medal}</div>
+                        <div style="flex: 1;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                <span style="font-weight: 600; color: var(--text);">${p.name}</span>
+                                <span style="color: var(--text-light); font-size: 0.9rem;">${p.bestScore} pts | ${p.avgAccuracy}% acc</span>
+                            </div>
+                            <div style="width: 100%; background: #e2e8f0; border-radius: 8px; height: 20px; overflow: hidden;">
+                                <div style="width: ${width}%; background: linear-gradient(90deg, #6366f1, #ec4899); height: 100%; display: flex; align-items: center; justify-content: flex-end; padding-right: 8px; color: white; font-size: 0.8rem; font-weight: bold;">
+                                    ${Math.round(width)}%
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // ===== Behavioral Insights =====
+            const highPerformers = players.filter(p => p.avgAccuracy >= 75);
+            const avgEngagement = Math.round(players.reduce((sum, p) => sum + p.gamesPlayed, 0) / totalPlayers);
+            
+            document.getElementById('highPerformers').innerHTML = `
+                ✨ <strong>${highPerformers.length} high performers</strong> identified<br>
+                🎯 ${highPerformers.length > 0 ? highPerformers.map(p => p.name).join(', ') : 'None yet'}<br>
+                <span style="font-size: 0.85rem;">Achievement rate: ${Math.round((highPerformers.length / totalPlayers) * 100)}%</span>
+            `;
+
+            document.getElementById('engagementLevel').innerHTML = `
+                📊 Average <strong>${avgEngagement} games</strong> per player<br>
+                🎮 Total sessions: <strong>${players.reduce((sum, p) => sum + p.gamesPlayed, 0)}</strong><br>
+                <span style="font-size: 0.85rem;">Engagement: ${avgEngagement > 5 ? '🔥 Very Active' : avgEngagement > 2 ? '⭐ Moderate' : '💭 Low'}</span>
+            `;
+
+            document.getElementById('ageGroupTrends').innerHTML = `
+                👶 Ages 1-10: ${ageGroups['1-10'].accuracy > 70 ? '🚀 Strong' : '💡 Growing'}<br>
+                👦 Ages 10-20: ${ageGroups['10-20'].accuracy > 70 ? '⭐ Excellent' : '📈 Improving'}<br>
+                👨 Ages 20+: ${ageGroups['20+'].accuracy > 70 ? '🎓 Mastered' : '📚 Learning'}<br>
+                <span style="font-size: 0.85rem;">Peak performer: ${Object.keys(ageGroups).reduce((best, group) => ageGroups[group].accuracy > ageGroups[best].accuracy ? group : best)}</span>
+            `;
+
+            document.getElementById('recommendations').innerHTML = `
+                💡 <strong>${avgAccuracy >= 70 ? 'Excellent progress!' : 'Room for growth'}</strong><br>
+                🎯 ${avgAccuracy < 60 ? 'Focus on medium difficulty games' : 'Try harder challenges'}<br>
+                📖 ${highPerformers.length > 2 ? 'Build a mentorship system' : 'More practice needed'}<br>
+                <span style="font-size: 0.85rem;">Next goal: ${avgAccuracy + 5}% accuracy</span>
+            `;
+
+            showScreen('psychology-analysis-screen');
+        }
+
+        function initStoryScreen() {
+            const story = STORIES[Math.floor(Math.random() * STORIES.length)];
+            gameState.currentStory = story;
+            document.getElementById('storyImage').textContent = story.emoji;
+            document.getElementById('storyTheme').textContent = story.theme;
+            document.getElementById('storyInput').value = '';
+            document.getElementById('storyWordCount').textContent = '0';
+            showScreen('story-screen');
+        }
+
+        document.addEventListener('input', (e) => {
+            if (e.target.id === 'storyInput') {
+                const words = e.target.value.trim().split(/\s+/).filter(w => w).length;
+                document.getElementById('storyWordCount').textContent = words;
+            }
+        });
+
+        function submitStory() {
+            const text = document.getElementById('storyInput').value.trim();
+            if (text.length < 50) {
+                alert('❌ Please write a longer story (at least 50 characters)!');
+                return;
+            }
+            
+            gameState.storyText = text;
+            const results = analyzeStory(text, gameState.currentStory);
+            displayStoryResults(results);
+        }
+
+        function analyzeStory(storyText, story) {
+            const textLower = storyText.toLowerCase();
+            const words = textLower.split(/\s+/);
+            
+            // Count keyword matches
+            const foundKeywords = [];
+            story.keywords.forEach(keyword => {
+                if (words.some(w => w.includes(keyword))) {
+                    foundKeywords.push(keyword);
+                }
+            });
+            
+            const keywordScore = foundKeywords.length;
+            const maxKeywords = story.keywords.length;
+            const keywordPercentage = Math.round((keywordScore / maxKeywords) * 100);
+            
+            // Calculate story quality based on length and keyword density
+            const wordCount = words.length;
+            const lengthScore = Math.min(100, (wordCount / 200) * 100);
+            const qualityScore = Math.round((keywordPercentage * 0.7 + lengthScore * 0.3));
+            
+            // Determine prediction status
+            let prediction = '❌ NEEDS IMPROVEMENT';
+            let predictionColor = '#ef4444';
+            let feedback = '';
+            
+            if (qualityScore >= 75) {
+                prediction = '✅ EXCELLENT';
+                predictionColor = '#10b981';
+                feedback = `Outstanding story! You used ${keywordScore} relevant keywords and created a rich narrative with ${wordCount} words. Your creativity perfectly matches the theme!`;
+            } else if (qualityScore >= 50) {
+                prediction = '✨ GOOD';
+                predictionColor = '#f59e0b';
+                feedback = `Good effort! You incorporated ${keywordScore} theme-related keywords in your ${wordCount}-word story. Try adding more thematic elements to enhance the narrative.`;
+            } else if (qualityScore >= 25) {
+                prediction = '📝 FAIR';
+                predictionColor = '#3b82f6';
+                feedback = `Nice try! You used ${keywordScore} relevant keywords, but consider expanding your story to at least 200 words and include more theme-specific details.`;
+            } else {
+                prediction = '❌ NEEDS WORK';
+                predictionColor = '#ef4444';
+                feedback = `Your story needs more thematic content. You only found ${keywordScore} keywords. Try incorporating more words related to: ${story.keywords.slice(0, 5).join(', ')}.`;
+            }
+            
+            return {
+                prediction,
+                predictionColor,
+                keywordScore,
+                maxKeywords,
+                qualityScore,
+                feedback,
+                foundKeywords,
+                wordCount,
+                story
+            };
+        }
+
+        function displayStoryResults(results) {
+            // Update prediction title and color
+            const titleEl = document.getElementById('predictionTitle');
+            titleEl.textContent = results.prediction;
+            titleEl.style.color = results.predictionColor;
+            document.getElementById('predictionEmoji').textContent = results.predictionColor === '#10b981' ? '🎉' : 
+                                                                     results.predictionColor === '#f59e0b' ? '⭐' :
+                                                                     results.predictionColor === '#3b82f6' ? '💡' : '📝';
+            
+            // Update scores
+            document.getElementById('keywordScore').textContent = `${results.keywordScore}/${results.maxKeywords}`;
+            document.getElementById('qualityScore').textContent = `${results.qualityScore}%`;
+            
+            // Display found keywords
+            const keywordHtml = `
+                <div style="background: white; padding: 15px; border-radius: 8px; border: 2px solid var(--border);">
+                    <h3 style="margin-bottom: 10px; color: var(--primary);">🔑 Keywords Found (${results.foundKeywords.length}/${results.maxKeywords})</h3>
+                    <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                        ${results.foundKeywords.map(k => 
+                            `<span style="background: #10b981; color: white; padding: 6px 12px; border-radius: 20px; font-size: 0.85rem;">✓ ${k}</span>`
+                        ).join('')}
+                    </div>
+                    ${results.foundKeywords.length < results.maxKeywords ? 
+                        `<p style="margin-top: 10px; color: var(--text-light); font-size: 0.9rem;">
+                            💭 Missing keywords: ${results.story.keywords.filter(k => !results.foundKeywords.includes(k)).slice(0, 3).join(', ')}...
+                        </p>` : ''}
+                </div>
+            `;
+            document.getElementById('keywordResults').innerHTML = keywordHtml;
+            
+            // Update feedback
+            document.getElementById('predictionFeedback').innerHTML = `<p style="margin: 0; color: var(--text); line-height: 1.6;">${results.feedback}</p>`;
+            
+            // Show results screen
+            showScreen('story-results-screen');
+        }
+
+        // Old initStory function renamed
+        function initStory() {
+            initStoryScreen();
+        }
+
+        function submitStory() {
+            const text = document.getElementById('storyInput').value.trim();
+            if (text.length < 50) {
+                alert('❌ Please write a longer story (at least 50 characters)!');
+                return;
+            }
+            
+            gameState.storyText = text;
+            const results = analyzeStory(text, gameState.currentStory);
+            displayStoryResults(results);
+        }
+
+        // ==================== STORAGE ====================
+        function savePlayerToStorage() {
+            const player = {
+                name: gameState.playerName,
+                ageGroup: gameState.ageGroup,
+                gamesPlayed: 1,
+                bestScore: gameState.score,
+                avgAccuracy: Math.round((gameState.correct / gameState.totalRounds) * 100)
+            };
+
+            const existing = gameState.allPlayers.find(p => p.name === player.name);
+            if (existing) {
+                // Update aggregated stats correctly
+                const totalGames = existing.gamesPlayed + 1;
+                existing.bestScore = Math.max(existing.bestScore, player.bestScore);
+                existing.avgAccuracy = Math.round((existing.avgAccuracy * existing.gamesPlayed + player.avgAccuracy) / totalGames);
+                existing.gamesPlayed = totalGames;
+            } else {
+                gameState.allPlayers.push(player);
+            }
+
+            localStorage.setItem('players', JSON.stringify(gameState.allPlayers));
+        }
+
+        function loadPlayersFromStorage() {
+            const saved = localStorage.getItem('players');
+            if (saved) gameState.allPlayers = JSON.parse(saved);
+        }
+    </script>
+</body>
+</html>

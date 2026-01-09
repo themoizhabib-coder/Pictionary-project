@@ -1,0 +1,8 @@
+[build]
+  command = "echo 'No build needed'"
+  publish = "."
+
+[[redirects]]
+  from = "/*"
+  to = "/psycho-pictionary.html"
+  status = 200
