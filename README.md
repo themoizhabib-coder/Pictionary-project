@@ -1,4 +1,4 @@
-# Bictionary - AI-Powered Learning Game
+# Pictionary - AI-Powered Learning Game
 
 A psychology-informed, AI-powered word learning game that combines visual recognition, spaced repetition, and gamification to enhance vocabulary retention.
 
